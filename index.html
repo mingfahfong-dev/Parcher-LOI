@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ISO 2596 Parcher LOI Worksheet</title>
+<title>ISO 2596 Parcher LOI Worksheet — v11</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -70,6 +70,59 @@
   .btn-primary{background:var(--teal); color:#fff;}
   .btn-primary:hover{background:var(--teal-dark);}
   .btn-ghost{background:transparent; color:var(--steel); border-color:var(--line);}
+
+  /* ---- device mode switch ---- */
+  .device-switch{
+    display:flex; gap:2px; background:#e4e9e8; border-radius:7px; padding:3px;
+    flex-shrink:0;
+  }
+  .device-switch button{
+    border:none; background:transparent; padding:7px 13px; border-radius:5px;
+    font-family:var(--sans); font-size:12px; font-weight:600; color:var(--steel-2);
+  }
+  .device-switch button.active{background:var(--steel); color:#fff;}
+
+  /* ---- iPad mode: narrower container, otherwise same layout ---- */
+  body.view-ipad .wrap{max-width:834px;}
+
+  /* ---- iPhone mode: single-column, touch-sized controls, sticky row labels ---- */
+  body.view-iphone .wrap{max-width:430px; padding-left:0; padding-right:0;}
+  body.view-iphone{padding-left:8px; padding-right:8px;}
+  body.view-iphone .masthead{flex-direction:column; align-items:flex-start; gap:10px;}
+  body.view-iphone .masthead h1{font-size:19px;}
+  body.view-iphone .headerfields{grid-template-columns:1fr;}
+  body.view-iphone .toolbar{flex-direction:column; align-items:stretch;}
+  body.view-iphone .toolbar select,
+  body.view-iphone .toolbar button,
+  body.view-iphone .toolbar .status{width:100%; justify-content:center; text-align:center;}
+  body.view-iphone button{min-height:42px; font-size:14px; padding:10px 14px;}
+  body.view-iphone .field input{min-height:40px; font-size:15px;}
+  body.view-iphone table td.rowlabel, body.view-iphone table th:first-child{
+    position:sticky; left:0; background:var(--paper-2); z-index:1;
+    box-shadow:2px 0 3px -2px rgba(0,0,0,0.15);
+  }
+  body.view-iphone th{background:#f5f8f7;}
+  body.view-iphone .actions{flex-direction:column; align-items:stretch;}
+  body.view-iphone .actions .status{margin-right:0; justify-content:center;}
+
+  /* Sections A, B & D: same table layout as desktop, just compressed to fit
+     the 430px width without horizontal scrolling — smaller type, tighter
+     padding, narrower input boxes. */
+  body.view-iphone #tableA, body.view-iphone #tableB, body.view-iphone #tableD{
+    font-size:8.5px; table-layout:fixed; width:100%;
+  }
+  body.view-iphone #tableA th, body.view-iphone #tableB th, body.view-iphone #tableD th{
+    font-size:7px; padding:3px 2px; white-space:normal; line-height:1.15;
+  }
+  body.view-iphone #tableA td, body.view-iphone #tableB td, body.view-iphone #tableD td{
+    padding:3px 2px; overflow-wrap:break-word;
+  }
+  body.view-iphone #tableA td.rowlabel, body.view-iphone #tableB td.rowlabel, body.view-iphone #tableD td.rowlabel{
+    font-size:8px;
+  }
+  body.view-iphone #tableA input.cell, body.view-iphone #tableB input.cell, body.view-iphone #tableD input.cell{
+    min-width:0; width:100%; font-size:8.5px; padding:3px 2px;
+  }
   .btn-ghost:hover{background:var(--paper);}
   .btn-danger{background:transparent; color:var(--fail); border-color:#e2c3bf;}
   .btn-danger:hover{background:#fbecea;}
@@ -140,16 +193,6 @@
   .stamp.fail{color:var(--fail); border-color:var(--fail);}
   .stamp.pending{color:#999; border-color:#bbb;}
 
-  input.cell:disabled, .field input:disabled{
-    background:#f2f4f3; color:var(--steel-2); cursor:not-allowed; opacity:0.85;
-  }
-  .locked-banner{
-    display:none; align-items:center; gap:8px; font-family:var(--mono); font-size:12px;
-    color:var(--teal-dark); background:#e4f2ea; border:1px solid #b9ddc7; border-radius:4px;
-    padding:8px 12px; margin-bottom:14px;
-  }
-  .locked-banner.show{display:flex;}
-
   .actions{display:flex; gap:10px; justify-content:flex-end; margin:20px 0 30px; flex-wrap:wrap;}
   .status{
     font-family:var(--mono); font-size:12px; color:var(--steel-2);
@@ -180,7 +223,11 @@
   <div class="masthead">
     <div>
       <h1>ISO 2596 Parcher &mdash; Loss on Ignition Worksheet</h1>
-      <div class="sub">PMLB &middot; digitised from Parcher_plus_LOI_v2.xlsm</div>
+      <div class="sub">PMLB &middot; digitised from Parcher_plus_LOI_v2.xlsm &middot; v11</div>
+    </div>
+    <div class="device-switch" id="deviceSwitch" title="Switch the layout between iPad and iPhone 16 Pro Max sizing">
+      <button type="button" id="mode_ipad" data-mode="ipad">iPad</button>
+      <button type="button" id="mode_iphone" data-mode="iphone">iPhone 16 Pro Max</button>
     </div>
   </div>
 
@@ -287,7 +334,6 @@
     <div id="overallStamp" class="stamp pending">PENDING</div>
   </div>
 
-  <div class="locked-banner" id="lockedBanner">&#128274; This worksheet was submitted and is locked from editing. Click "+ New Blank Form" to start another.</div>
   <div class="actions">
     <span class="status" id="draftStatus"><span class="pip"></span> No unsaved draft</span>
     <button class="btn-ghost" id="saveDraftBtn" title="Save this half-finished worksheet so you (or a teammate on this machine) can resume it later">Save Draft</button>
@@ -316,6 +362,10 @@
       </table>
       <div class="empty-log" id="emptyLog" style="display:none;">No entries submitted yet. Completed worksheets will appear here.</div>
     </div>
+  </div>
+
+  <div style="text-align:center; font-family:var(--mono); font-size:11px; color:var(--steel-2); padding:16px 0 4px;">
+    Parcher LOI Worksheet Tool &mdash; v11
   </div>
 
 </div>
@@ -744,7 +794,6 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
 
   let currentDraftId = null;
   let draftDirty = false;
-  let locked = false;
 
   const num = v => (v===null || v===undefined || v==='' || isNaN(parseFloat(v))) ? null : parseFloat(v);
   const fmt = (v, d=4) => (v===null || v===undefined || isNaN(v)) ? '—' : v.toFixed(d);
@@ -1061,15 +1110,6 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
     document.getElementById('draftStatus').innerHTML = `<span class="pip"></span> ${msg}`;
   }
 
-  function setLocked(isLocked){
-    locked = isLocked;
-    document.querySelectorAll('input.cell[data-path]').forEach(inp=>{ inp.disabled = isLocked; });
-    ['f_date','f_analyst','f_workorder'].forEach(id=>{ document.getElementById(id).disabled = isLocked; });
-    document.getElementById('saveDraftBtn').disabled = isLocked;
-    document.getElementById('submitBtn').disabled = isLocked;
-    document.getElementById('lockedBanner').classList.toggle('show', isLocked);
-  }
-
   // ---------- header fields ----------
   document.getElementById('f_date').addEventListener('input', e=>{state.date=e.target.value; markDirty();});
   document.getElementById('f_analyst').addEventListener('input', e=>{state.analyst=e.target.value; markDirty();});
@@ -1100,7 +1140,6 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
     currentDraftId = null;
     loadHeaderIntoForm();
     populateInputsFromState();
-    setLocked(false);
     renderAll();
     markClean('New blank form');
   });
@@ -1115,6 +1154,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
   const LS_DRAFTS = 'parcher_loi_drafts';
   const LS_LOG = 'parcher_loi_summary_log';
   const LS_REF = 'parcher_loi_certified_values';
+  const LS_DEVICE_MODE = 'parcher_loi_device_mode';
 
   const statusEl = document.getElementById('storageStatus');
   function setStatus(msg, ok=true){
@@ -1179,7 +1219,6 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
       currentDraftId = id;
       loadHeaderIntoForm();
       populateInputsFromState();
-      setLocked(false);
       renderAll();
       markClean('Draft loaded');
       setStatus('Draft loaded');
@@ -1197,13 +1236,13 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
     setStatus('Draft deleted');
   });
 
-  document.getElementById('submitBtn').addEventListener('click', ()=>{
+  document.getElementById('submitBtn').addEventListener('click', async ()=>{
     const calc = computeAll();
     if(!state.date || !state.workorder || !state.analyst){
       alert('Please fill in Date, Analyst and Work Order Number before submitting.');
       return;
     }
-    if(!confirm('Submit this worksheet to the Summary Log? It will be added as a permanent record and the worksheet will lock from further editing.')) return;
+    if(!confirm('Submit this worksheet to the Summary Log? It will replace the current entry there.')) return;
     const record = {
       date: state.date, workorder: state.workorder, analyst: state.analyst,
       submittedAt: new Date().toISOString(),
@@ -1216,20 +1255,18 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
       record.autoLOI[g] = calc.groupsD[g].autoLOI;
       record.passFail[g] = calc.groupsD[g].result;
     });
-    const log = loadLog();
-    log.unshift(record);
+    const log = [record]; // Summary Log keeps only the most recent submission — overwrite, don't append
     if(saveLog(log)){
       renderLogTable(log);
-      if(currentDraftId){
-        const list = loadDraftsList();
-        saveDraftsList(list.filter(d=>d.id!==currentDraftId));
-        refreshDraftDropdown();
-        currentDraftId = null;
-      }
-      setLocked(true);
       const pdfOk = generatePDF(calc);
-      setStatus(pdfOk ? 'Submitted — worksheet locked, PDF downloaded' : 'Submitted, but PDF generation failed', pdfOk);
-      markClean('Submitted — locked');
+      const csvContent = buildLogCsvContent(log);
+      const csvResult = await saveFileWithDialog(csvContent, 'parcher_loi_summary_log.csv', 'text/csv', 'CSV file', ['.csv']);
+      const csvOk = csvResult==='saved' || csvResult==='downloaded';
+      const parts = [];
+      parts.push(pdfOk ? 'PDF saved' : 'PDF failed');
+      parts.push(csvOk ? 'CSV saved' : (csvResult==='cancelled' ? 'CSV skipped' : 'CSV failed'));
+      setStatus(`Submitted — ${parts.join(', ')}`, pdfOk && csvOk);
+      markClean('Submitted');
     } else {
       setStatus('Submit failed — try again', false);
     }
@@ -1361,18 +1398,47 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
   }
 
   // ---------- export / import (the actual cross-machine sharing mechanism) ----------
-  document.getElementById('exportLogBtn').addEventListener('click', ()=>{
-    const log = loadLog();
-    const blob = new Blob([JSON.stringify({ exportedAt:new Date().toISOString(), entries:log }, null, 2)], {type:'application/json'});
+
+  // Prefer the browser's native "Save As" dialog (Chrome/Edge support this via
+  // showSaveFilePicker) so the person can pick where the file goes each time.
+  // Falls back to a silent download-folder save on browsers that don't support it
+  // (Firefox, Safari) or if the user's browser blocks the picker for some reason.
+  async function saveFileWithDialog(content, suggestedName, mimeType, typeDescription, extensions){
+    if(window.showSaveFilePicker){
+      try{
+        const handle = await window.showSaveFilePicker({
+          suggestedName,
+          types: [{ description: typeDescription, accept: { [mimeType]: extensions } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        return 'saved';
+      }catch(err){
+        if(err && err.name === 'AbortError') return 'cancelled';
+        console.warn('Save dialog failed, falling back to direct download:', err);
+        // fall through to the classic download below
+      }
+    }
+    const blob = new Blob([content], {type:mimeType});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'parcher_loi_summary_log.json';
+    a.download = suggestedName;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-    setStatus('Log exported');
+    return 'downloaded';
+  }
+
+  document.getElementById('exportLogBtn').addEventListener('click', async ()=>{
+    const log = loadLog();
+    const content = JSON.stringify({ exportedAt:new Date().toISOString(), entries:log }, null, 2);
+    const result = await saveFileWithDialog(content, 'parcher_loi_summary_log.json', 'application/json', 'JSON file', ['.json']);
+    if(result==='saved') setStatus('Log saved');
+    else if(result==='downloaded') setStatus('Log downloaded to your Downloads folder');
+    // 'cancelled' — user backed out of the dialog, leave status as-is
   });
 
   function csvEscape(v){
@@ -1381,9 +1447,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
     return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
   }
 
-  document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
-    const log = loadLog();
-    if(!log.length){ setStatus('Log is empty — nothing to export'); return; }
+  function buildLogCsvContent(log){
     const header = ['Date','WorkOrder','Analyst','SubmittedAt','Product','ParcherH2O_pct','ManualLOI_pct','AutoH2O_pct','AutoLOI_pct','PassFail'];
     const rows = [header.join(',')];
     log.forEach(r=>{
@@ -1399,16 +1463,16 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
         ].join(','));
       });
     });
-    const blob = new Blob([rows.join('\r\n')], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'parcher_loi_summary_log.csv';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    setStatus('CSV exported — ready for Power BI');
+    return rows.join('\r\n');
+  }
+
+  document.getElementById('exportCsvBtn').addEventListener('click', async ()=>{
+    const log = loadLog();
+    if(!log.length){ setStatus('Log is empty — nothing to export'); return; }
+    const content = buildLogCsvContent(log);
+    const result = await saveFileWithDialog(content, 'parcher_loi_summary_log.csv', 'text/csv', 'CSV file', ['.csv']);
+    if(result==='saved') setStatus('CSV saved — ready for Power BI');
+    else if(result==='downloaded') setStatus('CSV downloaded to your Downloads folder');
   });
 
   document.getElementById('importLogBtn').addEventListener('click', ()=>{
@@ -1477,8 +1541,23 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
     setStatus('Reference values saved');
   });
 
+  // ---------- device mode switch (iPad / iPhone 16 Pro Max) ----------
+  function setDeviceMode(mode){
+    document.body.classList.remove('view-ipad','view-iphone');
+    document.body.classList.add('view-'+mode);
+    document.getElementById('mode_ipad').classList.toggle('active', mode==='ipad');
+    document.getElementById('mode_iphone').classList.toggle('active', mode==='iphone');
+    lsSet(LS_DEVICE_MODE, mode);
+  }
+  document.getElementById('deviceSwitch').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-mode]');
+    if(!btn) return;
+    setDeviceMode(btn.dataset.mode);
+  });
+
   // ---------- init ----------
   function init(){
+    setDeviceMode(lsGet(LS_DEVICE_MODE, 'ipad'));
     certifiedValues = loadCertifiedValues();
     refreshDraftDropdown();
     renderLogTable(loadLog());
@@ -1486,7 +1565,6 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var n,r,i,a,
     loadHeaderIntoForm();
     buildAllTables();
     populateInputsFromState();
-    setLocked(false);
     renderAll();
     markClean('No unsaved draft');
   }
